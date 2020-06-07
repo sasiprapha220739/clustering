@@ -3,6 +3,8 @@ import { Button, Container, Col, FormControl, Row } from 'react-bootstrap';
 import { PieChart } from 'react-minimal-pie-chart';
 import logo from './logo.svg';
 import './App.css';
+import Learning from './Lerning';
+
 
 const simpleTexts = `มีที่ขอนแก่นไหมคะ
 อีเมล์นี้จาก DHL จริงมั้ยคะ
@@ -110,20 +112,25 @@ function App() {
   const [currSegmentIndex, setCurrSegmentIndex] = React.useState(null)
   const [clusterResult, setClusterResult] = React.useState(null)
   const [chartDatas, setChartDatas] = React.useState([])
+
   const changeText = (event) => {
+    //console.log('_changeText:', event.target.value)
     setText(event.target.value)
   }
   const onClickPieChart = (e, segmentIndex) => {
+    //console.log(segmentIndex)
     setCurrSegmentIndex(segmentIndex)
   }
   const conversTextToArray = (txt) => {
     let arr = txt.split("\n")
     return arr
+
   }
   const callApi = () => {
     console.log('callApi', text)
 
     const url = "https://nlp.insightera.co.th/api/nlp/clustering?token=97051ade29a61c860f57dc9443128464"
+    //url = '1234'
     let options = {
       method: 'POST',
       headers: {
@@ -137,16 +144,18 @@ function App() {
       feature_engine: 'bag-of-word',
       k: 3,
       max_k: 5,
+      //text: text || ""
       samples: spitText
     }
     options.body = JSON.stringify(objecJson)
-
     fetch(url, options)
       .then((response) => response.json())
       .then((json) => {
+        console.log('response_B:', JSON.stringify(json))
         let getClusterget = json?.result?.message?.cluster || [];
         let nuChartDatas = []
         getClusterget.forEach((group, index) => {
+          console.log('_:', group, index)
           let getWord = spitText[index]
           let find = nuChartDatas.find((o) => o.group === group)
           if (find) {
@@ -154,7 +163,6 @@ function App() {
             let getGroup = nuChartDatas[getObjectIndex]
             getGroup.words.push(getWord || '')
             getGroup.value = getGroup?.value + 1
-
           } else {
             let nuGroup = { title: "ตัวอย่างกลุ่ม " + (group + 1), value: 1, group: group, color: pieColors[group], words: [] }
             nuGroup.words.push(getWord)
@@ -163,26 +171,34 @@ function App() {
         });
         console.log('response_nuChartDatas:', nuChartDatas)
         setChartDatas(nuChartDatas)
+
+
       })
+
       .catch((error) => {
         console.log(error);
       });
+
+
   }
   const lineWidth = 100;
   return (
     <div className="App">
       <Container>
-        <Row style={{ marginTop: 40 }}>
+        <Row style={{ backgroundColor: '#fff', marginTop: 40 }}>
           <Col>
             <FormControl style={{ height: 300 }} name="input" as="textarea" value={text} onChange={changeText} aria-label="With textarea" /></Col>
         </Row>
-        <Row>
+        <Row style={{ backgroundColor: '#fff' }}>
           <Col>
             <Button onClick={callApi} variant="success">Clustering</Button>
           </Col>
         </Row>
 
-        <Row>
+
+
+
+        <Row style={{ backgroundColor: '#fff' }}>
           <Col style={{ width: 300, height: 300, maxHeight: 400, maxWidth: '50%' }}>
             <PieChart
               onClick={onClickPieChart}
@@ -199,7 +215,8 @@ function App() {
             />
           </Col>
         </Row>
-        <Row>
+
+        <Row style={{ backgroundColor: '#fff' }}>
           {currSegmentIndex !== null && <Col>
             <div>{chartDatas[currSegmentIndex]?.title} ({chartDatas[currSegmentIndex]?.words?.length + ' ข้อความ'})</div>
             {chartDatas[currSegmentIndex]?.words?.map((word, windex) => {
@@ -212,3 +229,4 @@ function App() {
   );
 }
 export default App;
+// export default Learning;
